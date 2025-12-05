@@ -13,7 +13,8 @@ func main() {
 		panic(err)
 	}
 
-	invalidSum := 0
+	invalidSumWithTwo := 0
+	invalidSumWithAny := 0
 	for r := range strings.SplitSeq(strings.TrimSpace(string(contents)), ",") {
 		sides := strings.Split(r, "-")
 		start, err := strconv.Atoi(sides[0])
@@ -24,36 +25,18 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		for i := nextInvalidId(start - 1); i <= end; i = nextInvalidId(i) {
-			invalidSum += i
+		for n := start; n <= end; n++ {
+			invalid := getInvalidIdCount(n)
+			if invalid == 2 {
+				invalidSumWithTwo += n
+			}
+			if invalid != 0 {
+				invalidSumWithAny += n
+			}
 		}
 	}
-	fmt.Println(invalidSum)
-}
-
-func nextInvalidId(id int) int {
-	if id < 10 {
-		return 11
-	}
-	numDigits := numDigits(id)
-	currentPowerOfTen := pow10(numDigits / 2)
-	multiplier := currentPowerOfTen + 1
-	maxFactor := multiplier - 2
-
-	factor := id / multiplier
-	var nextId int
-	if factor < maxFactor {
-		nextId = (factor + 1) * multiplier
-	} else {
-		nextPowerOfTen := currentPowerOfTen * 10
-		nextMultiplier := nextPowerOfTen + 1
-		nextId = currentPowerOfTen * nextMultiplier
-	}
-
-	if nextId <= id {
-		panic(fmt.Errorf("invalid: nextInvalidId(%v) = %v", id, nextId))
-	}
-	return nextId
+	fmt.Println(invalidSumWithTwo)
+	fmt.Println(invalidSumWithAny)
 }
 
 func numDigits(id int) int {
@@ -71,4 +54,36 @@ func pow10(p int) int {
 		result *= 10
 	}
 	return result
+}
+
+func max(x, y int) int {
+	if x > y {
+		return x
+	}
+	return y
+}
+
+func getInvalidIdCount(id int) int {
+	numDigits := numDigits(id)
+outer:
+	for factor := 2; factor <= numDigits; factor++ {
+		if numDigits%factor != 0 {
+			continue
+		}
+
+		chunkSize := numDigits / factor
+		for offset := range chunkSize {
+			digit := (id / pow10(offset)) % 10
+			for i := 1; i < factor; i++ {
+				otherDigit := (id / pow10(i*chunkSize+offset)) % 10
+				if otherDigit != digit {
+					continue outer
+				}
+			}
+		}
+
+		return factor
+	}
+
+	return 0
 }
