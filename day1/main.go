@@ -20,6 +20,7 @@ func main() {
 		if line == "" {
 			continue
 		}
+		wasZero := position == 0
 		parsed, err := strconv.Atoi(line[1:])
 		if err != nil {
 			panic(err)
@@ -32,13 +33,23 @@ func main() {
 		default:
 			panic("invalid line: " + line)
 		}
+		if position <= 0 && !wasZero {
+			zeros += 1
+		}
+		zeros += Abs(position) / 100
 		position %= 100
 		if position < 0 {
 			position += 100
 		}
-		if position == 0 {
-			zeros++
-		}
 	}
+	fmt.Println(position)
 	fmt.Println(zeros)
+}
+
+func Abs(x int) int {
+	if x < 0 {
+		return -x
+	} else {
+		return x
+	}
 }
