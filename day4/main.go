@@ -31,7 +31,26 @@ func main() {
 		}
 	}
 
+	removedTotal := 0
+	for {
+		removed := 0
+		for row, r := range grid {
+			for col, c := range r {
+				if c && grid.countAdjacent(row, col) < 4 {
+					removed++
+					r[col] = false
+				}
+			}
+		}
+
+		if removed == 0 {
+			break
+		}
+		removedTotal += removed
+	}
+
 	fmt.Println(accessible)
+	fmt.Println(removedTotal)
 }
 
 type Grid [][]bool
