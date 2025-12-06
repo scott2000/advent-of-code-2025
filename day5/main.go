@@ -69,7 +69,7 @@ func main() {
 		}
 	}
 
-	freshCount := 0
+	queriedFreshCount := 0
 	for queryStr := range strings.Lines(queriesStr) {
 		queryStr = strings.TrimSpace(queryStr)
 		query, err := strconv.Atoi(queryStr)
@@ -82,16 +82,27 @@ func main() {
 		})
 		if found {
 			if !flattened[index].isEnd {
-				freshCount++
+				queriedFreshCount++
 			}
 		} else {
 			if index > 0 && !flattened[index-1].isEnd {
-				freshCount++
+				queriedFreshCount++
 			}
 		}
 	}
 
-	fmt.Println(freshCount)
+	totalFreshCount := 0
+	startIndex := 0
+	for _, operation := range flattened {
+		if operation.isEnd {
+			totalFreshCount += operation.position - startIndex
+		} else {
+			startIndex = operation.position
+		}
+	}
+
+	fmt.Println(queriedFreshCount)
+	fmt.Println(totalFreshCount)
 }
 
 type Operation struct {
